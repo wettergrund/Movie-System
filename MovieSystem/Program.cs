@@ -1,4 +1,6 @@
-﻿namespace MovieSystem
+﻿
+
+namespace MovieSystem
 {
     internal class Program
     {
