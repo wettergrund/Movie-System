@@ -77,12 +77,16 @@ namespace MovieAPI
 
                 using (var context = new MovieDBContext())
                 {
-                    var movies = context.User;
-                    List<string> result = new List<string>();
-                    foreach (var item in movies)
-                    {
-                        result.Add(item.Name);
-                    }
+                    var users = context.User;
+                    List<User> result = new List<User>(users);
+                    //foreach (User item in users)
+                    //{
+                    //    result.Add(item.Name = );
+                    //}
+
+                    dynamic json = JsonConvert.SerializeObject(result);
+
+                   
                     return result;
                 }
 
