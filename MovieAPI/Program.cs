@@ -1,6 +1,8 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using MovieAPI.connection;
+using MovieAPI.Models;
 
 
 namespace MovieAPI
@@ -69,6 +71,23 @@ namespace MovieAPI
                 //return result;
             })
     .WithName("GetMovies");
+
+            app.MapGet("/users", async (HttpContext httpContext) =>
+            {
+
+                using (var context = new MovieDBContext())
+                {
+                    var movies = context.User;
+                    List<string> result = new List<string>();
+                    foreach (var item in movies)
+                    {
+                        result.Add(item.Name);
+                    }
+                    return result;
+                }
+
+            })
+.WithName("GetUsers");
 
             app.Run();
         }
