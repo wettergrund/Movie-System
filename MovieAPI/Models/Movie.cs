@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace MovieAPI
+namespace MovieAPI.Models
 {
     public class Movie
     {
@@ -10,7 +10,7 @@ namespace MovieAPI
         public string Title { get; set; }
 
         [JsonProperty("genre_ids")]
-        public List<int> Gendres  { get; set; }
+        public List<int> Gendres { get; set; }
 
         [JsonProperty("vote_average")]
         public decimal AverageScore { get; set; }

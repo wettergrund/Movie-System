@@ -1,8 +1,9 @@
+global using MovieAPI.Models;
+
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using MovieAPI.connection;
-using MovieAPI.Models;
 
 
 namespace MovieAPI
@@ -79,10 +80,7 @@ namespace MovieAPI
                 {
                     var users = context.User;
                     List<User> result = new List<User>(users);
-                    //foreach (User item in users)
-                    //{
-                    //    result.Add(item.Name = );
-                    //}
+              
 
                     dynamic json = JsonConvert.SerializeObject(result);
 
@@ -92,6 +90,24 @@ namespace MovieAPI
 
             })
 .WithName("GetUsers");
+
+            app.MapGet("/genres", async (HttpContext httpContext) =>
+            {
+
+                using (var context = new MovieDBContext())
+                {
+                    var genres = context.Genre;
+                    List<Genre> result = new List<Genre>(genres);
+       
+
+                    dynamic json = JsonConvert.SerializeObject(result);
+
+
+                    return result;
+                }
+
+            })
+.WithName("GetGenres");
 
             app.Run();
         }

@@ -1,4 +1,4 @@
-﻿namespace MovieAPI
+﻿namespace MovieAPI.Models
 {
     public class Result
     {

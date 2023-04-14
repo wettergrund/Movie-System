@@ -9,6 +9,7 @@ namespace MovieSystem
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             //await ListUsers();
+            //await GetGenreName();
             await ListMovies();
         }
 
@@ -48,8 +49,43 @@ namespace MovieSystem
             {
                 Console.WriteLine(movie.Title);
                 Console.WriteLine(movie.AverageScore);
+                Console.WriteLine(movie.Gendres.Count);
+                if(movie.Gendres.Count > 0)
+                {
+                    foreach (var genre in movie.Gendres)
+                    {
+                       
+                        Console.WriteLine(await GetGenreName(genre));
+                    }
+                }
+                
+
+
             }
 
         }
+
+        static async Task<string?> GetGenreName(int genreNr)
+        {
+
+            //https://localhost:7107/genres
+
+            string genreUrl = "https://localhost:7107/genres";
+
+            HttpClient client = new HttpClient();
+            dynamic response = await client.GetStringAsync(genreUrl);
+
+            List<Genre> genreList = JsonConvert.DeserializeObject<List<Genre>>(response);
+
+            
+                string? genreTitle = (from g in genreList
+                              where g.ExtID.Equals(genreNr)
+                                 select g.Title).LastOrDefault();
+
+            return genreTitle;
+           
+        }
+
+
     }
 }
