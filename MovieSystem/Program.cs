@@ -1,4 +1,5 @@
-﻿global using MovieSystem.Models;
+﻿//global using MovieSystem.Models;
+using MovieAPI.Models;
 using Newtonsoft.Json;
 
 namespace MovieSystem
@@ -48,15 +49,17 @@ namespace MovieSystem
             foreach (Movie movie in result.Results)
             {
                 Console.WriteLine(movie.Title);
-                Console.WriteLine(movie.AverageScore);
-                Console.WriteLine(movie.Gendres.Count);
+                Console.WriteLine();
+                ShowScore(movie.AverageScore);
                 if(movie.Gendres.Count > 0)
                 {
+
                     foreach (var genre in movie.Gendres)
                     {
                        
                         Console.WriteLine(await GetGenreName(genre));
                     }
+                    Console.WriteLine("---");
                 }
                 
 
@@ -86,6 +89,30 @@ namespace MovieSystem
            
         }
 
+        static void ShowScore(decimal score)
+        {
+            switch (score)
+            {
+                case decimal n when (n == 0):
+                    Console.WriteLine("No score");
+                    break;
+                case decimal n when (n < 2):
+                    Console.WriteLine("⭐");
+                    break;
+                case decimal n when (n < 4):
+                    Console.WriteLine("⭐⭐");
+                    break;
+                case decimal n when (n < 6):
+                    Console.WriteLine("⭐⭐⭐");
+                    break;
+                case decimal n when (n < 8):
+                    Console.WriteLine("⭐⭐⭐⭐");
+                    break;
+                case decimal n when (n <= 10):
+                    Console.WriteLine("⭐⭐⭐⭐⭐");
+                    break;
+            }
+        }
 
     }
 }
