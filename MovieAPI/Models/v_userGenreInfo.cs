@@ -7,5 +7,7 @@ namespace MovieAPI.Models
     {
         public string Name { get; set; }    
         public string Title { get; set; }
+        public int GID { get; set; }
+        public int UID { get; set; }
     }
 }
