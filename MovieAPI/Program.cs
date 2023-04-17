@@ -87,8 +87,27 @@ namespace MovieAPI
                 return user != null ? Results.Ok(user) : Results.NotFound("User not found");
             });
 
-            app.MapGet("/genre/{name}", async (MovieDBContext context, string name) =>
-                await context.v_userGenreInfo.Where(u => u.Name.Equals(name)).ToArrayAsync());
+            app.MapGet("/genre/{id}", async (MovieDBContext context, int id) =>
+                await context.v_userGenreInfo.Where(u => u.UID == id).ToArrayAsync());
+
+            //app.MapGet("/genre/byID", async (MovieDBContext context,
+            //    [FromQuery(Name = "Id")] int? id,
+            //    [FromQuery(Name = "Name")] string? name
+            //    ) =>
+            //    {
+            //       if(name != null)
+            //        {
+            //            return await context.v_userGenreInfo.Where(u => u.Name == name).ToArrayAsync();
+            //        }
+            //        else
+            //        {
+
+            //            return await context.v_userGenreInfo.Where(u => u.UID == id).ToArrayAsync();
+
+            //        }
+
+
+            //    });
 
 
             //app.MapGet("/genres", async (HttpContext httpContext) =>
