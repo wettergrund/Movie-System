@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using MovieAPI.connection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MovieAPI
 {
@@ -40,7 +41,7 @@ namespace MovieAPI
 
             app.MapGet("/movie/{movie}", async (HttpContext httpContext, string movie) =>
             {
-                
+
                 string URL = $"https://api.themoviedb.org/3/search/movie?api_key=2b7d5bf25d89ca81c83f8d6a2ac12244&language=en-US&query={movie}&include_adult=false";
                 using (var client = new HttpClient())
                 {
@@ -55,8 +56,7 @@ namespace MovieAPI
                 }
 
                 //return result;
-            })
-            .WithName("GetMovies");
+            });
 
             //app.MapGet("/users", async (HttpContext httpContext) =>
             //{
@@ -78,7 +78,18 @@ namespace MovieAPI
 
 
             app.MapGet("/users", async (MovieDBContext context) =>
-                await context.User.ToArrayAsync()).WithName("GetUsers");
+                await context.User.ToArrayAsync());
+
+            app.MapGet("/users/search", async (MovieDBContext context,
+                [FromQuery(Name = "name")] string name) =>
+            {
+                var user = await context.User.Where(u => u.Name == name).FirstOrDefaultAsync();
+                return user != null ? Results.Ok(user) : Results.NotFound("User not found");
+            });
+
+            app.MapGet("/genre/{name}", async (MovieDBContext context, string name) =>
+                await context.v_userGenreInfo.Where(u => u.Name.Equals(name)).ToArrayAsync());
+
 
             //app.MapGet("/genres", async (HttpContext httpContext) =>
             //{
@@ -87,7 +98,7 @@ namespace MovieAPI
             //    {
             //        var genres = context.Genre;
             //        List<Genre> result = new List<Genre>(genres);
-       
+
 
             //        dynamic json = JsonConvert.SerializeObject(result);
 
