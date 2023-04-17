@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using MovieAPI.connection;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace MovieAPI
 {
@@ -20,6 +20,8 @@ namespace MovieAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddDbContext<MovieDBContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
             var app = builder.Build();
 
@@ -54,45 +56,50 @@ namespace MovieAPI
 
                 //return result;
             })
-    .WithName("GetMovies");
+            .WithName("GetMovies");
 
-            app.MapGet("/users", async (HttpContext httpContext) =>
-            {
+            //app.MapGet("/users", async (HttpContext httpContext) =>
+            //{
 
-                using (var context = new MovieDBContext())
-                {
-                    var users = context.User;
-                    List<User> result = new List<User>(users);
-              
+            //    using (var context = new MovieDBContext())
+            //    {
+            //        var users = context.User;
+            //        List<User> result = new List<User>(users);
 
-                    dynamic json = JsonConvert.SerializeObject(result);
 
-                   
-                    return result;
-                }
+            //        dynamic json = JsonConvert.SerializeObject(result);
 
-            })
-.WithName("GetUsers");
 
-            app.MapGet("/genres", async (HttpContext httpContext) =>
-            {
+            //        return result;
+            //    }
 
-                using (var context = new MovieDBContext())
-                {
-                    var genres = context.Genre;
-                    List<Genre> result = new List<Genre>(genres);
+            //})
+            //.WithName("GetUsers");
+
+
+            app.MapGet("/users", async (MovieDBContext context) =>
+                await context.User.ToArrayAsync()).WithName("GetUsers");
+
+            //app.MapGet("/genres", async (HttpContext httpContext) =>
+            //{
+
+            //    using (var context = new MovieDBContext()
+            //    {
+            //        var genres = context.Genre;
+            //        List<Genre> result = new List<Genre>(genres);
        
 
-                    dynamic json = JsonConvert.SerializeObject(result);
+            //        dynamic json = JsonConvert.SerializeObject(result);
 
 
-                    return result;
-                }
+            //        return result;
+            //    }
 
-            })
-.WithName("GetGenres");
+            //})
+            //.WithName("GetGenres");
 
             app.Run();
+
         }
     }
 }
