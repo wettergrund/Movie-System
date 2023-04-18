@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MovieAPI.Models
 {
-    public class User_genre_movie
+    [Table("User_genre_movie")]
+    public class UserGenreMovie
     {
         [Key]
         public int id { get; set; }
