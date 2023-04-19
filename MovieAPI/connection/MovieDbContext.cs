@@ -4,10 +4,10 @@ using MovieAPI.Models;
 
 namespace MovieAPI.connection
 {
-    public class RepositoryContext : DbContext
+    public class MovieDBContext : DbContext
     {
 
-        public RepositoryContext(DbContextOptions<RepositoryContext> options) : base(options) { }
+        public MovieDBContext(DbContextOptions<MovieDBContext> options) : base(options) { }
         
         public DbSet<User> User { get; set; }
         public DbSet<Genre> Genre { get; set; }
