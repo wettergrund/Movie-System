@@ -13,6 +13,8 @@ namespace MovieAPI
     {
         public static void Main(string[] args)
         {
+            
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -21,7 +23,7 @@ namespace MovieAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContext<MovieDBContext>(options =>
+            builder.Services.AddDbContext<RepositoryContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
             var app = builder.Build();
@@ -77,17 +79,23 @@ namespace MovieAPI
             //.WithName("GetUsers");
 
 
-            app.MapGet("/users", async (MovieDBContext context) =>
-                await context.User.ToArrayAsync());
+            //app.MapGet("/users", async (RepositoryContext context) =>
+            //    await context.User.ToArrayAsync());
+            app.MapGet("/users", async (RepositoryContext context) =>
+            {
+                UserRepository userRepo = new UserRepository(context);
 
-            app.MapGet("/users/search", async (MovieDBContext context,
+                return userRepo.GetAll();
+            });
+
+            app.MapGet("/users/search", async (RepositoryContext context,
                 [FromQuery(Name = "name")] string name) =>
             {
                 var user = await context.User.Where(u => u.Name == name).FirstOrDefaultAsync();
                 return user != null ? Results.Ok(user) : Results.NotFound("User not found");
             });
 
-            app.MapGet("/genre/{id}", async (MovieDBContext context, int id) =>
+            app.MapGet("/genre/{id}", async (RepositoryContext context, int id) =>
                 await context.v_userGenreInfo.Where(u => u.UID == id).ToArrayAsync());
 
             //app.MapGet("/genre/byID", async (MovieDBContext context,

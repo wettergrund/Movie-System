@@ -1,10 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace MovieAPI.Models
 {
     public class Movie
     {
         private string _poster = "";
+
+        [Key]
         public int ID { get; set; }
 
         [JsonProperty("original_title")]
