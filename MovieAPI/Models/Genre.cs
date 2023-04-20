@@ -2,7 +2,7 @@
 
 namespace MovieAPI.Models
 {
-    public class Genre : IEntity
+    public class Genre 
     {
         [Key]
         public int Id { get; set; }

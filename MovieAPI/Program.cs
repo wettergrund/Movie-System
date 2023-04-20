@@ -83,6 +83,8 @@ namespace MovieAPI
             //    await context.User.ToArrayAsync());
             app.MapGet("/users", async (RepositoryContext context) =>
             {
+                //Get all users in DB, repository pattern
+
                 UserRepository userRepo = new UserRepository(context);
 
                 return userRepo.GetAll();
@@ -95,8 +97,17 @@ namespace MovieAPI
                 return user != null ? Results.Ok(user) : Results.NotFound("User not found");
             });
 
+            //app.MapGet("/genre/{id}", async (RepositoryContext context, int id) =>
+            //    await context.v_userGenreInfo.Where(u => u.UID == id).ToArrayAsync());
+
             app.MapGet("/genre/{id}", async (RepositoryContext context, int id) =>
-                await context.v_userGenreInfo.Where(u => u.UID == id).ToArrayAsync());
+            {
+                //Get genres from DB by id, repository pattern
+
+                GenreRepository genreRepo = new GenreRepository(context);
+
+                return genreRepo.GetByCondition(g => g.Id == id);
+            });
 
             //app.MapGet("/genre/byID", async (MovieDBContext context,
             //    [FromQuery(Name = "Id")] int? id,
