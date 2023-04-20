@@ -1,22 +1,27 @@
-﻿using MovieAPI.connection;
+﻿using Microsoft.EntityFrameworkCore;
+using MovieAPI.connection;
 
 namespace MovieAPI.Models
 {
     public class GenreRepository : RepositoryBase<Genre>, IGenreRepository
     {
-        private readonly RepositoryContext _dbContext;
 
         public GenreRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
+
+        public List<Genre> GetGenre { get; set; }
 
 
         public string GetNameByID(int id)
         {
+            RepositoryContext context = new RepositoryContext();
 
-            GenreRepository genreRepo = new GenreRepository(_dbContext);
-            Console.WriteLine();
-            
+            GenreRepository genreRepo = new GenreRepository(context);
+            var test = genreRepo.GetByCondition(g => g.Id == id).ToList();
 
-            return genreRepo.GetByCondition(g => g.Id == id).ToString();
+           
+
+
+            return test.First().Title;
 
         }
     }

@@ -24,7 +24,7 @@ namespace MovieAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            //builder.Services.AddDbContext<RepositoryContext>(options =>
+            //builder.Services.AddDbContextPool<RepositoryContext>(options =>
             //    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
             var app = builder.Build();
@@ -94,19 +94,21 @@ namespace MovieAPI
 
             //app.MapGet("/users", async (RepositoryContext context) =>
             //    await context.User.ToArrayAsync());
-            app.MapGet("/users", async (RepositoryContext context) =>
+            app.MapGet("/users", async () =>
             {
-                //Get all users in DB, repository pattern
-                //Hämta alla personer i systemet
+                RepositoryContext context = new RepositoryContext();
+           
 
                 UserRepository userRepo = new UserRepository(context);
 
                 return userRepo.GetAll();
             });
 
-            app.MapGet("/users/search", async (RepositoryContext context,
+            app.MapGet("/users/search", async (
                 [FromQuery(Name = "name")] string name) =>
             {
+                RepositoryContext context = new RepositoryContext();
+
                 UserRepository userRepo = new UserRepository(context);
                 var user = userRepo.GetByCondition(u => u.Name == name);
 
@@ -119,8 +121,9 @@ namespace MovieAPI
             //app.MapGet("/genre/{id}", async (RepositoryContext context, int id) =>
             //    await context.v_userGenreInfo.Where(u => u.UID == id).ToArrayAsync());
 
-            app.MapGet("/genre/{id}", async (RepositoryContext context, int id) =>
+            app.MapGet("/genre/{id}", async (int id) =>
             {
+                RepositoryContext context = new RepositoryContext();
                 //Get genres from DB by id, repository pattern
 
                 GenreRepository genreRepo = new GenreRepository(context);
@@ -128,13 +131,13 @@ namespace MovieAPI
                 return genreRepo.GetByCondition(g => g.Id == id);
             });
 
-            
-            app.MapGet("/genrebyuser", async (RepositoryContext context, int userId) =>
+
+            app.MapGet("/genrebyuser", async (int userId) =>
             {
                 //Get genres connected to a user ID
 
-                
-                
+
+                RepositoryContext context = new RepositoryContext();
 
                 UserGenreMovieRepository ugmRepo = new UserGenreMovieRepository(context);
 
@@ -143,11 +146,11 @@ namespace MovieAPI
                 return ugmRepo.GetByCondition(ugm => ugm.UserID == userId);
             });
 
-            app.MapGet("/getallgenre", async (RepositoryContext context) =>
+            app.MapGet("/getallgenre", async () =>
             {
                 //Get genres connected to a user ID
 
-
+                RepositoryContext context = new RepositoryContext();
 
                 UserGenreMovieRepository ugmRepo = new UserGenreMovieRepository(context);
 
