@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using MovieAPI.connection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MovieAPI
 {
@@ -23,8 +24,8 @@ namespace MovieAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContext<RepositoryContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+            //builder.Services.AddDbContext<RepositoryContext>(options =>
+            //    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
             var app = builder.Build();
 
@@ -96,6 +97,7 @@ namespace MovieAPI
             app.MapGet("/users", async (RepositoryContext context) =>
             {
                 //Get all users in DB, repository pattern
+                //Hämta alla personer i systemet
 
                 UserRepository userRepo = new UserRepository(context);
 
@@ -105,8 +107,13 @@ namespace MovieAPI
             app.MapGet("/users/search", async (RepositoryContext context,
                 [FromQuery(Name = "name")] string name) =>
             {
-                var user = await context.User.Where(u => u.Name == name).FirstOrDefaultAsync();
-                return user != null ? Results.Ok(user) : Results.NotFound("User not found");
+                UserRepository userRepo = new UserRepository(context);
+                var user = userRepo.GetByCondition(u => u.Name == name);
+
+                return user.IsNullOrEmpty() ? Results.NotFound("User not found") : Results.Ok(user);
+
+                //var user = await context.User.Where(u => u.Name == name).FirstOrDefaultAsync();
+                //return user != null ? Results.Ok(user) : Results.NotFound("User not found");
             });
 
             //app.MapGet("/genre/{id}", async (RepositoryContext context, int id) =>
@@ -119,6 +126,34 @@ namespace MovieAPI
                 GenreRepository genreRepo = new GenreRepository(context);
 
                 return genreRepo.GetByCondition(g => g.Id == id);
+            });
+
+            
+            app.MapGet("/genrebyuser", async (RepositoryContext context, int userId) =>
+            {
+                //Get genres connected to a user ID
+
+                
+                
+
+                UserGenreMovieRepository ugmRepo = new UserGenreMovieRepository(context);
+
+
+
+                return ugmRepo.GetByCondition(ugm => ugm.UserID == userId);
+            });
+
+            app.MapGet("/getallgenre", async (RepositoryContext context) =>
+            {
+                //Get genres connected to a user ID
+
+
+
+                UserGenreMovieRepository ugmRepo = new UserGenreMovieRepository(context);
+
+
+
+                return ugmRepo.GetAll();
             });
 
             //app.MapGet("/genre/byID", async (MovieDBContext context,
