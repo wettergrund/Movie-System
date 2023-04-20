@@ -41,21 +41,33 @@ namespace MovieAPI
 
 
 
+            //app.MapGet("/movie/{movie}", async (HttpContext httpContext, string movie) =>
+            //{
+
+            //    string URL = $"https://api.themoviedb.org/3/search/movie?api_key=2b7d5bf25d89ca81c83f8d6a2ac12244&language=en-US&query={movie}&include_adult=false";
+            //    using (var client = new HttpClient())
+            //    {
+            //        var response = await client.GetAsync(URL);
+            //        response.EnsureSuccessStatusCode();
+
+            //        var content = await response.Content.ReadAsStringAsync();
+            //        dynamic? result = JsonConvert.DeserializeObject<Result>(content);
+
+
+            //        return result;
+            //    }
+
+            //    //return result;
+            //});
+
+
             app.MapGet("/movie/{movie}", async (HttpContext httpContext, string movie) =>
             {
+                // Search movie, repository pattern
 
-                string URL = $"https://api.themoviedb.org/3/search/movie?api_key=2b7d5bf25d89ca81c83f8d6a2ac12244&language=en-US&query={movie}&include_adult=false";
-                using (var client = new HttpClient())
-                {
-                    var response = await client.GetAsync(URL);
-                    response.EnsureSuccessStatusCode();
+                TMDBRepository TMDBRepo = new TMDBRepository();
 
-                    var content = await response.Content.ReadAsStringAsync();
-                    dynamic? result = JsonConvert.DeserializeObject<Result>(content);
-
-
-                    return result;
-                }
+                return await TMDBRepo.GetData(movie);
 
                 //return result;
             });
