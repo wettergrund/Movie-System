@@ -106,7 +106,7 @@ namespace MovieAPI
 
 
 
-                    newMovieGenre.MovieID = newMovie.ID;
+                    newMovieGenre.MovieID = newMovie.Id;
                     newMovieGenre.GenreID = GenID.OrderBy(g => g.Id).Select(g => g.Id).LastOrDefault();
 
                     MovieGenreRepo.Create(newMovieGenre);
@@ -170,7 +170,7 @@ namespace MovieAPI
                 movieInDb = movieRepo.GetByCondition(m => m.ExtID == extId);
 
                 newUserMovie.UserID = userID;
-                newUserMovie.MovieID = movieInDb.OrderBy(m => m.ID).Select(m => m.ID).LastOrDefault();
+                newUserMovie.MovieID = movieInDb.OrderBy(m => m.Id).Select(m => m.Id).LastOrDefault();
                 if (rating.HasValue)
                 {
                     newUserMovie.UserRating = (int)rating;
@@ -210,7 +210,45 @@ namespace MovieAPI
 
             });
 
+            //Movies per userID
+            app.MapGet("API/movies/{userId}", async (int userId) =>
+            {
+                //Get genres from DB by id, repository pattern
 
+                RepositoryContext context = new RepositoryContext();
+
+                GenreRepository genreRepo = new GenreRepository(context);
+                UserMovieRepository userMovieRepo = new UserMovieRepository(context);
+
+                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => umr.MovieName);
+
+                return response;
+            });
+
+            app.MapGet("API/genres/{userId}", async (int userId) =>
+            {
+                //Get genres from DB by id, repository pattern
+
+                RepositoryContext context = new RepositoryContext();
+
+              
+                GenreRepository genreRepo = new GenreRepository(context);
+                UserMovieRepository userMovieRepo = new UserMovieRepository(context);
+
+                //var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => umr.MovieID);
+
+                var movieIds = userMovieRepo.GetByCondition(umr => umr.UserID == userId)
+                                .Select(umr => umr.MovieID)
+                                .ToList();
+
+                var genres = genreRepo.GetByCondition(g => movieIds.Contains(g.Id))
+                          .Select(g => g.Title)
+                          .Distinct()
+                          .ToList();
+
+
+                return genres;
+            });
 
             app.MapGet("/genre/{id}", async (int id) =>
             {
