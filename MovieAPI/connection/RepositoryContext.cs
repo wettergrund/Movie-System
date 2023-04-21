@@ -16,6 +16,8 @@ namespace MovieAPI.connection
 
         public DbSet<User> User { get; set; }
         public DbSet<Genre> Genre { get; set; }
+        public DbSet<Movie> Movie { get; set; }
+
         public DbSet<UserGenreMovie> UserGenreMovie { get; set; }
 
 

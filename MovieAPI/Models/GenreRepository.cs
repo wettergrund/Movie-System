@@ -7,7 +7,6 @@ namespace MovieAPI.Models
     {
 
         public GenreRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
-
         public List<Genre> GetGenre { get; set; }
 
 
@@ -18,11 +17,13 @@ namespace MovieAPI.Models
             GenreRepository genreRepo = new GenreRepository(context);
             var test = genreRepo.GetByCondition(g => g.Id == id).ToList();
 
-           
+
 
 
             return test.First().Title;
 
         }
+
+
     }
 }

@@ -42,58 +42,62 @@ namespace MovieAPI
 
 
 
-            //app.MapGet("/movie/{movie}", async (HttpContext httpContext, string movie) =>
-            //{
-
-            //    string URL = $"https://api.themoviedb.org/3/search/movie?api_key=2b7d5bf25d89ca81c83f8d6a2ac12244&language=en-US&query={movie}&include_adult=false";
-            //    using (var client = new HttpClient())
-            //    {
-            //        var response = await client.GetAsync(URL);
-            //        response.EnsureSuccessStatusCode();
-
-            //        var content = await response.Content.ReadAsStringAsync();
-            //        dynamic? result = JsonConvert.DeserializeObject<Result>(content);
-
-
-            //        return result;
-            //    }
-
-            //    //return result;
-            //});
-
-
             app.MapGet("/movie/{movie}", async (HttpContext httpContext, string movie) =>
             {
                 // Search movie, repository pattern
 
                 TMDBRepository TMDBRepo = new TMDBRepository();
 
-                return await TMDBRepo.GetData(movie);
+                return await TMDBRepo.GetByTitle(movie);
 
-                //return result;
+               
             });
 
-            //app.MapGet("/users", async (HttpContext httpContext) =>
-            //{
+            app.MapGet("/moviebyID/{id}", async (HttpContext httpContext, int id) =>
+            {
+                // Search movie, repository pattern
 
-            //    using (var context = new MovieDBContext())
-            //    {
-            //        var users = context.User;
-            //        List<User> result = new List<User>(users);
+                TMDBRepository TMDBRepo = new TMDBRepository();
 
-
-            //        dynamic json = JsonConvert.SerializeObject(result);
+                return await TMDBRepo.GetByID(id);
 
 
-            //        return result;
-            //    }
-
-            //})
-            //.WithName("GetUsers");
+            });
 
 
-            //app.MapGet("/users", async (RepositoryContext context) =>
-            //    await context.User.ToArrayAsync());
+            app.MapPost("/API/movie/create", async (Movie newMovie, int id) =>
+            {
+                RepositoryContext context = new RepositoryContext();
+
+
+                MovieRepository movieRepo = new MovieRepository(context);
+
+                var movieExist = movieRepo.GetByCondition(m => m.ExtID == id);
+
+                if (movieExist.IsNullOrEmpty())
+                {
+                    //Create movie
+
+                    //Get movie from TMDB by ID
+
+                    TMDBRepository TMDBRepo = new TMDBRepository();
+
+                    var movie = await TMDBRepo.GetByID(id);
+
+                    newMovie.ExtID = movie.ExtID;
+                    newMovie.Title = movie.Title;
+                    newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
+                    newMovie.Description = movie.Overview;
+
+                    movieRepo.Create(newMovie);
+                    context.SaveChanges();
+
+                    return newMovie;
+                }
+                return newMovie;
+            });
+
+
             app.MapGet("/users", async () =>
             {
                 RepositoryContext context = new RepositoryContext();
@@ -114,12 +118,9 @@ namespace MovieAPI
 
                 return user.IsNullOrEmpty() ? Results.NotFound("User not found") : Results.Ok(user);
 
-                //var user = await context.User.Where(u => u.Name == name).FirstOrDefaultAsync();
-                //return user != null ? Results.Ok(user) : Results.NotFound("User not found");
             });
 
-            //app.MapGet("/genre/{id}", async (RepositoryContext context, int id) =>
-            //    await context.v_userGenreInfo.Where(u => u.UID == id).ToArrayAsync());
+
 
             app.MapGet("/genre/{id}", async (int id) =>
             {
@@ -159,43 +160,6 @@ namespace MovieAPI
                 return ugmRepo.GetAll();
             });
 
-            //app.MapGet("/genre/byID", async (MovieDBContext context,
-            //    [FromQuery(Name = "Id")] int? id,
-            //    [FromQuery(Name = "Name")] string? name
-            //    ) =>
-            //    {
-            //       if(name != null)
-            //        {
-            //            return await context.v_userGenreInfo.Where(u => u.Name == name).ToArrayAsync();
-            //        }
-            //        else
-            //        {
-
-            //            return await context.v_userGenreInfo.Where(u => u.UID == id).ToArrayAsync();
-
-            //        }
-
-
-            //    });
-
-
-            //app.MapGet("/genres", async (HttpContext httpContext) =>
-            //{
-
-            //    using (var context = new MovieDBContext()
-            //    {
-            //        var genres = context.Genre;
-            //        List<Genre> result = new List<Genre>(genres);
-
-
-            //        dynamic json = JsonConvert.SerializeObject(result);
-
-
-            //        return result;
-            //    }
-
-            //})
-            //.WithName("GetGenres");
 
             app.Run();
 

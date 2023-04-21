@@ -6,49 +6,17 @@ namespace MovieAPI.Models
 {
     public class Movie
     {
-        private string _poster = "";
-
         [Key]
         public int ID { get; set; }
 
-        [JsonProperty("original_title")]
+        public int ExtID { get; set; }
+
         public string Title { get; set; }
+        public string Description { get; set; }
 
-        [JsonProperty("genre_ids")]
-        public List<int> Gendres { get; set; }
+        public string Link { get; set; }
 
-        [JsonProperty("vote_average")]
-        public decimal AverageScore { get; set; }
-
-        public string Overview { get; set; }
-
-        [JsonProperty("poster_path")]
-        public string poster { get; set; }
-        
-        public string posterM
-        {
-            get
-            {
-                _poster = $"https://image.tmdb.org/t/p/w500{poster}";
-                return _poster;
-            }
-            set
-            {
-                _poster = value;
-            }
-        }
-        public string posterS
-        {
-            get
-            {
-                _poster = $"https://image.tmdb.org/t/p/w200{poster}";
-                return _poster;
-            }
-            set
-            {
-                _poster = value;
-            }
-        }
+        private string _poster = "";
 
     }
 }
