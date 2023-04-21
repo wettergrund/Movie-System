@@ -64,6 +64,30 @@ namespace MovieAPI
 
             });
 
+            static async Task CreateMovie(int id)
+            {
+                Movie newMovie = new Movie();
+
+                RepositoryContext context = new RepositoryContext();
+
+
+                MovieRepository movieRepo = new MovieRepository(context);
+
+                TMDBRepository TMDBRepo = new TMDBRepository();
+
+                var movie = await TMDBRepo.GetByID(id);
+
+                newMovie.ExtID = movie.ExtID;
+                newMovie.Title = movie.Title;
+                newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
+                newMovie.Description = movie.Overview;
+
+                movieRepo.Create(newMovie);
+                context.SaveChanges();
+
+                //return newMovie.ID;
+
+            }
 
             app.MapPost("/API/movie/create", async (Movie newMovie, int id) =>
             {
@@ -74,28 +98,89 @@ namespace MovieAPI
 
                 var movieExist = movieRepo.GetByCondition(m => m.ExtID == id);
 
-                if (movieExist.IsNullOrEmpty())
+                if (!movieExist.IsNullOrEmpty())
                 {
-                    //Create movie
-
-                    //Get movie from TMDB by ID
-
-                    TMDBRepository TMDBRepo = new TMDBRepository();
-
-                    var movie = await TMDBRepo.GetByID(id);
-
-                    newMovie.ExtID = movie.ExtID;
-                    newMovie.Title = movie.Title;
-                    newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
-                    newMovie.Description = movie.Overview;
-
-                    movieRepo.Create(newMovie);
-                    context.SaveChanges();
-
-                    return newMovie;
+                    
+                    return Results.BadRequest("Movie exist");
                 }
-                return newMovie;
+
+                //Create movie
+
+                //Get movie from TMDB by ID
+
+                TMDBRepository TMDBRepo = new TMDBRepository();
+
+                var movie = await TMDBRepo.GetByID(id);
+
+                newMovie.ExtID = movie.ExtID;
+                newMovie.Title = movie.Title;
+                newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
+                newMovie.Description = movie.Overview;
+
+                movieRepo.Create(newMovie);
+                context.SaveChanges();
+
+                return Results.Created("/API/movie/create", newMovie);
             });
+
+            //Connect user to a movie
+            app.MapPost("/API/usermovie/create", async(UserMovie newUserMovie, int userID, int extId, int? rating) =>
+            {
+                RepositoryContext context = new RepositoryContext();
+                MovieRepository movieRepo = new MovieRepository(context);
+                UserMovieRepository UserMovieRepo = new UserMovieRepository(context);
+
+                
+
+                //If movie does not exist in db
+                var movieInDb = movieRepo.GetByCondition(m => m.ExtID == extId);
+
+                if (movieInDb.IsNullOrEmpty())
+                {
+                    //Create movie if not existing
+                    await CreateMovie(extId);
+                    //TMDBRepository TMDBRepo = new TMDBRepository();
+
+                    //Movie newMovie = new Movie();
+                    //var movie = await TMDBRepo.GetByID(extId);
+
+                    //newMovie.ExtID = movie.ExtID;
+                    //newMovie.Title = movie.Title;
+                    //newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
+                    //newMovie.Description = movie.Overview;
+
+                    //movieRepo.Create(newMovie);
+                    //context.SaveChanges();
+
+                    //newUserMovie.UserID = userID;
+                    //newUserMovie.MovieID = movieInDb.OrderBy(m => m.ID).Select(m => m.ID).LastOrDefault();
+
+                    //UserMovieRepo.Create(newUserMovie);
+                    //context.SaveChanges();
+
+
+                    //Jusut connect
+
+                }
+                movieInDb = movieRepo.GetByCondition(m => m.ExtID == extId);
+
+                newUserMovie.UserID = userID;
+                newUserMovie.MovieID = movieInDb.OrderBy(m => m.ID).Select(m => m.ID).LastOrDefault();
+                if (rating.HasValue)
+                {
+                    newUserMovie.UserRating = (int)rating;
+                }
+
+                UserMovieRepo.Create(newUserMovie);
+                context.SaveChanges();
+
+                return newUserMovie;
+
+
+            });
+
+
+            
 
 
             app.MapGet("/users", async () =>
