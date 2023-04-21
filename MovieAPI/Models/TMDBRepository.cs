@@ -29,7 +29,7 @@ namespace MovieAPI.Models
             using (var client = new HttpClient())
             {
                 var response = await client.GetAsync(URL);
-                response.EnsureSuccessStatusCode();
+                //response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync();
                 dynamic? result = JsonConvert.DeserializeObject<TMDBMovie>(content);

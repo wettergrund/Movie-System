@@ -20,7 +20,7 @@ namespace MovieAPI.Models
         [JsonProperty("genres")]
         public List<Genre> Gendres { get; set; }
 
-        [JsonProperty("genre-ids")]
+        [JsonProperty("genre_ids")]
         public List<int> genreId { get; set; }
 
         [JsonProperty("vote_average")]

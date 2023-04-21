@@ -82,46 +82,72 @@ namespace MovieAPI
                 newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
                 newMovie.Description = movie.Overview;
 
+
+
+
                 movieRepo.Create(newMovie);
                 context.SaveChanges();
 
                 //return newMovie.ID;
 
-            }
+                //Check genres??
+                MovieGenreRepository MovieGenreRepo = new MovieGenreRepository(context);
 
-            app.MapPost("/API/movie/create", async (Movie newMovie, int id) =>
-            {
-                RepositoryContext context = new RepositoryContext();
+                //int genres = movie.Gendres.Count();
 
+                GenreRepository genreRepo = new GenreRepository(context);
 
-                MovieRepository movieRepo = new MovieRepository(context);
-
-                var movieExist = movieRepo.GetByCondition(m => m.ExtID == id);
-
-                if (!movieExist.IsNullOrEmpty())
+                foreach (var item in movie.Gendres)
                 {
-                    
-                    return Results.BadRequest("Movie exist");
+                    MovieGenre newMovieGenre = new MovieGenre();
+
+                    var GenID = genreRepo.GetByCondition(g => g.ExtID == item.ExtID);
+
+
+
+
+                    newMovieGenre.MovieID = newMovie.ID;
+                    newMovieGenre.GenreID = GenID.OrderBy(g => g.Id).Select(g => g.Id).LastOrDefault();
+
+                    MovieGenreRepo.Create(newMovieGenre);
+                    context.SaveChanges();
                 }
 
-                //Create movie
+            }
 
-                //Get movie from TMDB by ID
+            //app.MapPost("/API/movie/create", async (Movie newMovie, int id) =>
+            //{
+            //    RepositoryContext context = new RepositoryContext();
 
-                TMDBRepository TMDBRepo = new TMDBRepository();
 
-                var movie = await TMDBRepo.GetByID(id);
+            //    MovieRepository movieRepo = new MovieRepository(context);
 
-                newMovie.ExtID = movie.ExtID;
-                newMovie.Title = movie.Title;
-                newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
-                newMovie.Description = movie.Overview;
+            //    var movieExist = movieRepo.GetByCondition(m => m.ExtID == id);
 
-                movieRepo.Create(newMovie);
-                context.SaveChanges();
+            //    if (!movieExist.IsNullOrEmpty())
+            //    {
+                    
+            //        return Results.BadRequest("Movie exist");
+            //    }
 
-                return Results.Created("/API/movie/create", newMovie);
-            });
+            //    //Create movie
+
+            //    //Get movie from TMDB by ID
+
+            //    TMDBRepository TMDBRepo = new TMDBRepository();
+
+            //    var movie = await TMDBRepo.GetByID(id);
+
+            //    newMovie.ExtID = movie.ExtID;
+            //    newMovie.Title = movie.Title;
+            //    newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
+            //    newMovie.Description = movie.Overview;
+
+            //    movieRepo.Create(newMovie);
+            //    context.SaveChanges();
+
+            //    return Results.Created("/API/movie/create", newMovie);
+            //});
 
             //Connect user to a movie
             app.MapPost("/API/usermovie/create", async(UserMovie newUserMovie, int userID, int extId, int? rating) =>
@@ -139,27 +165,6 @@ namespace MovieAPI
                 {
                     //Create movie if not existing
                     await CreateMovie(extId);
-                    //TMDBRepository TMDBRepo = new TMDBRepository();
-
-                    //Movie newMovie = new Movie();
-                    //var movie = await TMDBRepo.GetByID(extId);
-
-                    //newMovie.ExtID = movie.ExtID;
-                    //newMovie.Title = movie.Title;
-                    //newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
-                    //newMovie.Description = movie.Overview;
-
-                    //movieRepo.Create(newMovie);
-                    //context.SaveChanges();
-
-                    //newUserMovie.UserID = userID;
-                    //newUserMovie.MovieID = movieInDb.OrderBy(m => m.ID).Select(m => m.ID).LastOrDefault();
-
-                    //UserMovieRepo.Create(newUserMovie);
-                    //context.SaveChanges();
-
-
-                    //Jusut connect
 
                 }
                 movieInDb = movieRepo.GetByCondition(m => m.ExtID == extId);
@@ -209,8 +214,9 @@ namespace MovieAPI
 
             app.MapGet("/genre/{id}", async (int id) =>
             {
-                RepositoryContext context = new RepositoryContext();
                 //Get genres from DB by id, repository pattern
+
+                RepositoryContext context = new RepositoryContext();
 
                 GenreRepository genreRepo = new GenreRepository(context);
 
