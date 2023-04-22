@@ -31,7 +31,7 @@ namespace MovieAPI.Models
         [JsonProperty("homepage")]
         public string Homepage { get; set; }
 
-
+        //Path to posters, for future use
         [JsonProperty("poster_path")]
         public string poster { get; set; }
 

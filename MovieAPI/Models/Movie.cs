@@ -16,7 +16,6 @@ namespace MovieAPI.Models
 
         public string Link { get; set; }
 
-        private string _poster = "";
 
     }
 }

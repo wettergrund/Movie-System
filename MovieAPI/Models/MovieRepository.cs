@@ -10,15 +10,16 @@ namespace MovieAPI.Models
 
         public string GetNameByID(int id)
         {
+            // Return movie title by DB ID
             RepositoryContext context = new RepositoryContext();
 
             MovieRepository movieRepo = new MovieRepository(context);
-            var test = movieRepo.GetByCondition(m => m.Id ==id).ToList();
+            var movies = movieRepo.GetByCondition(m => m.Id == id).ToList();
 
 
 
 
-            return test.First().Title;
+            return movies.First().Title;
 
         }
 

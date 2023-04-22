@@ -98,7 +98,6 @@ namespace MovieAPI
             app.MapGet("API/movies/{userID}", async (int userId) =>
             {
                 //Get genres from DB by id, repository pattern
-                // Hämta alla filmer som är kopplade till en specifik person
 
                 RepositoryContext context = new RepositoryContext();
 
@@ -124,7 +123,6 @@ namespace MovieAPI
             app.MapGet("API/movies/suggestion/{userId}", async (int userId) =>
             {
                 //Return movie suggestion based on users genres
-                //Få förslag på filmer i en viss genre från ett externt API, t.ex TMDB.
 
                 RepositoryContext context = new RepositoryContext();
 
@@ -160,8 +158,6 @@ namespace MovieAPI
             app.MapGet("API/genres/{userId}", async (int userId) =>
             {
                 //Get genres from DB by id, repository pattern
-                //[x]  Hämta alla genrer som är kopplade till en specifik person COnfirmed
-                // Lägga in och hämta "rating" på filmer kopplat till en person
 
                 RepositoryContext context = new RepositoryContext();
 
