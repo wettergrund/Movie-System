@@ -15,7 +15,9 @@ namespace MovieAPI.Models
         public int Id { get; set; }
         public int UserID { get; set; }
         public int MovieID { get; set; }
+        //public int UserRating { get; set; }
         public int UserRating { get; set; }
+
 
         public string? MovieName
         {

@@ -173,13 +173,17 @@ namespace MovieAPI
                 newUserMovie.MovieID = movieInDb.OrderBy(m => m.Id).Select(m => m.Id).LastOrDefault();
                 if (rating.HasValue)
                 {
+                    if(rating > 5 || rating < 1)
+                    {
+                        return Results.BadRequest("Inavlid rating, should be bewteen 1 and 5");
+                    }
                     newUserMovie.UserRating = (int)rating;
                 }
 
                 UserMovieRepo.Create(newUserMovie);
                 context.SaveChanges();
 
-                return newUserMovie;
+                return Results.Ok(newUserMovie);
 
 
             });
@@ -220,7 +224,7 @@ namespace MovieAPI
                 GenreRepository genreRepo = new GenreRepository(context);
                 UserMovieRepository userMovieRepo = new UserMovieRepository(context);
 
-                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => umr.MovieName);
+                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => new { umr.MovieName, umr.UserRating});
 
                 return response;
             });
