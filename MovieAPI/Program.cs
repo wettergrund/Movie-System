@@ -1,12 +1,6 @@
 global using MovieAPI.Models;
-
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using MovieAPI.connection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MovieAPI.connection;
 
 namespace MovieAPI
 {
@@ -14,7 +8,7 @@ namespace MovieAPI
     {
         public static void Main(string[] args)
         {
-            
+
 
             var builder = WebApplication.CreateBuilder(args);
 
@@ -44,14 +38,14 @@ namespace MovieAPI
             {
                 //Hämta alla personer i systemet Confirmed
                 RepositoryContext context = new RepositoryContext();
-           
+
 
                 UserRepository userRepo = new UserRepository(context);
 
                 return userRepo.GetAll();
             });
 
-            app.MapGet("API/movies/search/{movieTitle}", async (HttpContext httpContext, string movie) =>
+            app.MapGet("API/movies/search/{movieTitle}", async (string movie) =>
             {
                 // Search movie, repository pattern
 
@@ -60,9 +54,9 @@ namespace MovieAPI
                 return await TMDBRepo.GetByTitle(movie);
 
 
-            }); 
+            });
 
-            app.MapPost("API/movie/userlink", async(UserMovie newUserMovie, int userID, int extId, int? rating) =>
+            app.MapPost("API/movie/userlink", async (UserMovie newUserMovie, int userID, int extId, int? rating) =>
             {
                 // Link a user to a movie.
                 // IF movie does not exist in DB, it will be added.
@@ -72,7 +66,7 @@ namespace MovieAPI
                 MovieRepository movieRepo = new MovieRepository(context);
                 UserMovieRepository UserMovieRepo = new UserMovieRepository(context);
 
-                
+
 
                 //If movie does not exist in db
                 var movieInDb = movieRepo.GetByCondition(m => m.ExtID == extId);
@@ -89,7 +83,7 @@ namespace MovieAPI
                 newUserMovie.MovieID = movieInDb.OrderBy(m => m.Id).Select(m => m.Id).LastOrDefault();
                 if (rating.HasValue)
                 {
-                    if(rating > 5 || rating < 1)
+                    if (rating > 5 || rating < 1)
                     {
                         return Results.BadRequest("Inavlid rating, should be bewteen 1 and 5");
                     }
@@ -104,7 +98,7 @@ namespace MovieAPI
 
             });
 
-            app.MapGet("API/movies/{userId}", async (int userId) =>
+            app.MapGet("API/movies/{userId}", (int userId) =>
             {
                 //Get genres from DB by id, repository pattern
 
@@ -113,9 +107,9 @@ namespace MovieAPI
                 GenreRepository genreRepo = new GenreRepository(context);
                 UserMovieRepository userMovieRepo = new UserMovieRepository(context);
 
-                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => new MovieNameRating { MovieName = umr.MovieName, UserRating = umr.UserRating});
+                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => new MovieNameRating { MovieName = umr.MovieName, UserRating = umr.UserRating });
 
-                return response;
+                return Results.Ok(response);
             });
 
 
@@ -129,7 +123,6 @@ namespace MovieAPI
                 GenreRepository genreRepo = new GenreRepository(context);
                 UserMovieRepository userMovieRepo = new UserMovieRepository(context);
 
-                //var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => umr.MovieID);
 
                 var movieIds = userMovieRepo.GetByCondition(umr => umr.UserID == userId)
                                 .Select(umr => umr.MovieID)
@@ -142,29 +135,26 @@ namespace MovieAPI
 
                 string requestpath = "";
 
-                foreach(var item in genres)
+                foreach (var item in genres)
                 {
                     requestpath += item.ToString() + "%7C";
                 }
-                // 1. Get users genres
-                // 2 .construct string: genre1%7Cgenre2
+            
                 TMDBRepository TMDBRepo = new TMDBRepository();
 
                 return await TMDBRepo.GetByGenres(requestpath);
 
             });
 
-            app.MapGet("API/genres/{userId}", async (int userId) =>
+            app.MapGet("API/genres/{userId}", (int userId) =>
             {
                 //Get genres from DB by id, repository pattern
 
                 RepositoryContext context = new RepositoryContext();
 
-              
+
                 GenreRepository genreRepo = new GenreRepository(context);
                 UserMovieRepository userMovieRepo = new UserMovieRepository(context);
-
-                //var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => umr.MovieID);
 
                 var movieIds = userMovieRepo.GetByCondition(umr => umr.UserID == userId)
                                 .Select(umr => umr.MovieID)
@@ -199,17 +189,11 @@ namespace MovieAPI
                 newMovie.Description = movie.Overview;
 
 
-
-
                 movieRepo.Create(newMovie);
                 context.SaveChanges();
 
-                //return newMovie.ID;
-
-                //Check genres??
+      
                 MovieGenreRepository MovieGenreRepo = new MovieGenreRepository(context);
-
-                //int genres = movie.Gendres.Count();
 
                 GenreRepository genreRepo = new GenreRepository(context);
 
@@ -218,9 +202,6 @@ namespace MovieAPI
                     MovieGenre newMovieGenre = new MovieGenre();
 
                     var GenID = genreRepo.GetByCondition(g => g.ExtID == item.ExtID);
-
-
-
 
                     newMovieGenre.MovieID = newMovie.Id;
                     newMovieGenre.GenreID = GenID.OrderBy(g => g.Id).Select(g => g.Id).LastOrDefault();
