@@ -58,6 +58,9 @@ Based on the movies user is connected to, it will check the movies genres and su
 
 Will list the genre names that user is connected to, based on the connected movies.
 
+## Database structure
+
+![image](https://user-images.githubusercontent.com/50584818/233791645-335a1d90-4409-4594-86e6-53d4aac12f95.png)
 
 ## Sources
 
