@@ -192,8 +192,9 @@ namespace MovieAPI
             
 
 
-            app.MapGet("/users", async () =>
+            app.MapGet("API/users/all", async () =>
             {
+                //Hämta alla personer i systemet Confirmed
                 RepositoryContext context = new RepositoryContext();
            
 
@@ -254,16 +255,16 @@ namespace MovieAPI
                 return genres;
             });
 
-            app.MapGet("/genre/{id}", async (int id) =>
-            {
-                //Get genres from DB by id, repository pattern
+            //app.MapGet("/genre/{id}", async (int id) =>
+            //{
+            //    //Get genres from DB by id, repository pattern
 
-                RepositoryContext context = new RepositoryContext();
+            //    RepositoryContext context = new RepositoryContext();
 
-                GenreRepository genreRepo = new GenreRepository(context);
+            //    GenreRepository genreRepo = new GenreRepository(context);
 
-                return genreRepo.GetByCondition(g => g.Id == id);
-            });
+            //    return genreRepo.GetByCondition(g => g.Id == id);
+            //});
 
 
             app.MapGet("/genrebyuser", async (int userId) =>
@@ -278,6 +279,42 @@ namespace MovieAPI
 
 
                 return ugmRepo.GetByCondition(ugm => ugm.UserID == userId);
+            });
+
+
+            //Movies based on users genres
+            app.MapGet("API/newmovies/{userId}", async (int userId) =>
+            {
+
+                RepositoryContext context = new RepositoryContext();
+
+
+                GenreRepository genreRepo = new GenreRepository(context);
+                UserMovieRepository userMovieRepo = new UserMovieRepository(context);
+
+                //var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => umr.MovieID);
+
+                var movieIds = userMovieRepo.GetByCondition(umr => umr.UserID == userId)
+                                .Select(umr => umr.MovieID)
+                                .ToList();
+
+                var genres = genreRepo.GetByCondition(g => movieIds.Contains(g.Id))
+                          .Select(g => g.ExtID)
+                          .Distinct()
+                          .ToList();
+
+                string requestpath = "";
+
+                foreach(var item in genres)
+                {
+                    requestpath += item.ToString() + "%7C";
+                }
+                // 1. Get users genres
+                // 2 .construct string: genre1%7Cgenre2
+                TMDBRepository TMDBRepo = new TMDBRepository();
+
+                return await TMDBRepo.GetByGenres(requestpath);
+
             });
 
             app.MapGet("/getallgenre", async () =>
