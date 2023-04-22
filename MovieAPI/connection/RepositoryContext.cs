@@ -22,7 +22,6 @@ namespace MovieAPI.connection
 
 
 
-        public DbSet<UserGenreMovie> UserGenreMovie { get; set; }
 
 
 
