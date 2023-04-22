@@ -52,7 +52,18 @@ namespace MovieAPI
 
                 return userRepo.GetAll();
             });
-            
+
+            app.MapGet("API/movies/search/{movieTitle}", async (HttpContext httpContext, string movie) =>
+            {
+                // Search movie, repository pattern
+
+                TMDBRepository TMDBRepo = new TMDBRepository();
+
+                return await TMDBRepo.GetByTitle(movie);
+
+
+            }); 
+
             app.MapPost("API/movie/userlink", async(UserMovie newUserMovie, int userID, int extId, int? rating) =>
             {
                 // Link a user to a movie.
@@ -95,7 +106,7 @@ namespace MovieAPI
 
             });
 
-            app.MapGet("API/movies/{userID}", async (int userId) =>
+            app.MapGet("API/movies/{userId}", async (int userId) =>
             {
                 //Get genres from DB by id, repository pattern
 
@@ -104,21 +115,11 @@ namespace MovieAPI
                 GenreRepository genreRepo = new GenreRepository(context);
                 UserMovieRepository userMovieRepo = new UserMovieRepository(context);
 
-                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => new { umr.MovieName, umr.UserRating});
+                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => new MovieNameRating { MovieName = umr.MovieName, UserRating = umr.UserRating});
 
                 return response;
             });
 
-            app.MapGet("API/movies/{movieTitle}", async (HttpContext httpContext, string movie) =>
-            {
-                // Search movie, repository pattern
-
-                TMDBRepository TMDBRepo = new TMDBRepository();
-
-                return await TMDBRepo.GetByTitle(movie);
-
-
-            });
 
             app.MapGet("API/movies/suggestion/{userId}", async (int userId) =>
             {
