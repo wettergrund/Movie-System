@@ -62,6 +62,17 @@ Will list the genre names that user is connected to, based on the connected movi
 
 ![image](https://user-images.githubusercontent.com/50584818/233791645-335a1d90-4409-4594-86e6-53d4aac12f95.png)
 
+## Configuration
+
+An API key from TMDb is required to utilize their service.
+
+Key should be stored in appsetting.json:
+
+![image](https://user-images.githubusercontent.com/50584818/233992272-ac05cf81-b90c-4366-8043-a15b84e17781.png)
+
+
+
+
 ## Sources
 
 The movie details used in this project was obtained from TMDb.
