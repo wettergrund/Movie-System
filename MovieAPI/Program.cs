@@ -59,7 +59,7 @@ namespace MovieAPI
                 return userRepo.GetAll();
             });
 
-            app.MapGet("API/movies/search/{movieTitle}", async (string movie) =>
+            app.MapGet("API/movies/search/", async (string movie) =>
             {
                 // Search movie, repository pattern
 
