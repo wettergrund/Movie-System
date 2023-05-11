@@ -16,6 +16,9 @@ namespace MovieAPI.Models
 
         public string Link { get; set; }
 
+        public int AddedBy { get; set; }
+
+
 
     }
 }

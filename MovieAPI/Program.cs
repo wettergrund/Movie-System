@@ -115,7 +115,7 @@ namespace MovieAPI
                 if (movieInDb.IsNullOrEmpty())
                 {
                     //Create movie if not existing
-                    await CreateMovie(extId);
+                    await CreateMovie(extId, userID);
 
                 }
                 movieInDb = movieRepo.GetByCondition(m => m.ExtID == extId);
@@ -210,7 +210,7 @@ namespace MovieAPI
                 return genres;
             });
 
-            static async Task CreateMovie(int id)
+            static async Task CreateMovie(int extID, int userID)
             {
                 //Method to add movie to database, if needed.
                 Movie newMovie = new Movie();
@@ -222,12 +222,13 @@ namespace MovieAPI
 
                 TMDBRepository TMDBRepo = new TMDBRepository();
 
-                var movie = await TMDBRepo.GetByID(id);
+                var movie = await TMDBRepo.GetByID(extID);
 
                 newMovie.ExtID = movie.ExtID;
                 newMovie.Title = movie.Title;
                 newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
                 newMovie.Description = movie.Overview;
+                newMovie.AddedBy = userID;
 
 
                 movieRepo.Create(newMovie);
