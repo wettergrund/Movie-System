@@ -70,6 +70,33 @@ namespace MovieAPI
 
             });
 
+            app.MapGet("API/movies/bydbid", async (int dbID) =>
+            {
+                // Search movie, repository pattern
+
+                //Movie newMovie = new Movie();
+
+                RepositoryContext context = new RepositoryContext();
+                MovieRepository movieRepo = new MovieRepository(context);
+                UserMovieRepository UserMovieRepo = new UserMovieRepository(context);
+                TMDBRepository TMDBRepo = new TMDBRepository();
+
+
+                var movieInDb = movieRepo.GetByCondition(m => m.Id == dbID);
+
+                var movie = await TMDBRepo.GetMovieByID(movieInDb.OrderBy(m => m.Id).Last().ExtID);
+
+
+                //newMovie.ExtID = movie.ExtID;
+                //newMovie.Title = movie.Title;
+                //newMovie.Link = $"https://www.themoviedb.org/movie/{newMovie.ExtID}-{newMovie.Title}";
+                //newMovie.Description = movie.Overview;
+
+
+                return movie;
+
+            });
+
             app.MapPost("API/movie/userlink", async (UserMovie newUserMovie, int userID, int extId, int? rating) =>
             {
                 // Link a user to a movie.

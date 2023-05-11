@@ -64,6 +64,22 @@ namespace MovieAPI.Models
             }
         }
 
+        public async Task<TMDBMovieList> GetMovieByID(int id)
+        {
+            string URL = $"https://api.themoviedb.org/3/movie/{id}?api_key={Key()}&language=en-US";
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync(URL);
+                //response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                dynamic? result = JsonConvert.DeserializeObject<TMDBMovieList>(content);
+
+
+                return result;
+            }
+        }
+
         public async Task<Result> GetByGenres(string genres)
         {
             string URL = $"https://api.themoviedb.org/3/discover/movie?api_key={Key()}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres={genres}&with_watch_monetization_types=flatrate";
@@ -79,5 +95,6 @@ namespace MovieAPI.Models
                 return result;
             }
         }
+
     }
 }

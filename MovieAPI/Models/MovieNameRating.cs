@@ -4,5 +4,7 @@
     {
         public string MovieName { get; set; }
         public int UserRating { get; set; }
+
+
     }
 }
