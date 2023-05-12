@@ -11,5 +11,8 @@ namespace MovieAPI.Models
 
         [JsonProperty("id")]
         public int ExtID { get; set; }
+
+        public string Description { get; set; }
+
     }
 }

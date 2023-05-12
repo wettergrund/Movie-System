@@ -9,6 +9,18 @@ namespace MovieAPI.Models
         public GenreRepository(RepositoryContext repositoryContext) : base(repositoryContext) { }
         //public List<Genre> GetGenre { get; set; }
 
+        public int GeExtIdByID(int id)
+        {
+            //Return genre name by DB ID.
+
+            RepositoryContext context = new RepositoryContext();
+
+            GenreRepository genreRepo = new GenreRepository(context);
+            var genres = genreRepo.GetByCondition(g => g.Id == id).ToList();
+
+            return genres.First().ExtID;
+
+        }
 
         public string GetNameByID(int id)
         {

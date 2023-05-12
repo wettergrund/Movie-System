@@ -84,7 +84,8 @@ namespace MovieAPI
 
                 var movieInDb = movieRepo.GetByCondition(m => m.Id == dbID);
 
-                var movie = await TMDBRepo.GetMovieByID(movieInDb.OrderBy(m => m.Id).Last().ExtID);
+                var getMovie = movieInDb.OrderBy(m => m.ExtID).Last();
+                var movie = await TMDBRepo.GetMovieByID(getMovie.ExtID);
 
 
                 //newMovie.ExtID = movie.ExtID;
@@ -148,7 +149,7 @@ namespace MovieAPI
                 GenreRepository genreRepo = new GenreRepository(context);
                 UserMovieRepository userMovieRepo = new UserMovieRepository(context);
 
-                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => new MovieNameRating { MovieName = umr.MovieName, UserRating = umr.UserRating });
+                var response = userMovieRepo.GetByCondition(umr => umr.UserID == userId).Select(umr => new MovieNameRating { MovieName = umr.MovieName, UserRating = umr.UserRating, MovieID = umr.MovieID });
 
                 return Results.Ok(response);
             });
@@ -160,55 +161,87 @@ namespace MovieAPI
 
                 RepositoryContext context = new RepositoryContext();
 
-
                 GenreRepository genreRepo = new GenreRepository(context);
                 UserMovieRepository userMovieRepo = new UserMovieRepository(context);
+                MovieGenreRepository movieGenreRepo = new MovieGenreRepository(context);
+
+                
+                var movieIds = GetMovieDbIDs(userId, userMovieRepo);
+
+                // For each movieID, get respective genre(s)
+                List<MovieGenre> genres = new List<MovieGenre> { };
+                
+                foreach (var item in movieIds)
+                {
+                    genres.AddRange(movieGenreRepo.GetByCondition(m => m.MovieID == item));
+
+                };
 
 
-                var movieIds = userMovieRepo.GetByCondition(umr => umr.UserID == userId)
-                                .Select(umr => umr.MovieID)
-                                .ToList();
-
-                var genres = genreRepo.GetByCondition(g => movieIds.Contains(g.Id))
-                          .Select(g => g.ExtID)
-                          .Distinct()
-                          .ToList();
-
+                // For each genre, add genre ID to serch string
                 string requestpath = "";
 
                 foreach (var item in genres)
                 {
-                    requestpath += item.ToString() + "%7C";
+                    var genreID = genreRepo.GeExtIdByID(item.GenreID);
+
+
+                    requestpath += genreID + "%7C";
                 }
             
+                // Get result from TMDb based on search term
                 TMDBRepository TMDBRepo = new TMDBRepository();
 
                 return await TMDBRepo.GetByGenres(requestpath);
 
             });
 
+
             app.MapGet("API/genres/{userId}", (int userId) =>
             {
-                //Get genres from DB by id, repository pattern
+                
 
                 RepositoryContext context = new RepositoryContext();
 
 
                 GenreRepository genreRepo = new GenreRepository(context);
                 UserMovieRepository userMovieRepo = new UserMovieRepository(context);
+                MovieGenreRepository movieGenreRepo = new MovieGenreRepository(context);
 
-                var movieIds = userMovieRepo.GetByCondition(umr => umr.UserID == userId)
+
+                var movieIds = GetMovieDbIDs(userId, userMovieRepo);
+
+                // For each movieID, get respective genre(s)
+                List<MovieGenre> genres = new List<MovieGenre> { }; 
+
+                //Get movies genreIDs from movegenre by moveID
+                foreach (var item in movieIds)
+                {
+                    genres.AddRange(movieGenreRepo.GetByCondition(m => m.MovieID == item));
+                          
+                };
+
+                // For each genre, get genre details like Title, description etc.
+                List<Genre> genreDetails = new List<Genre> { };
+
+                foreach (var item in genres)
+                {
+                    genreDetails.AddRange(genreRepo.GetByCondition(g => g.Id == item.GenreID));
+                }
+
+
+                return genreDetails;
+            });
+
+            static List<int> GetMovieDbIDs(int userID, UserMovieRepository repo)
+            {
+                // Return a list of movie IDs connected to a user
+                var result = repo.GetByCondition(umr => umr.UserID == userID)
                                 .Select(umr => umr.MovieID)
                                 .ToList();
 
-                var genres = genreRepo.GetByCondition(g => movieIds.Contains(g.Id))
-                          .Select(g => g.Title)
-                          .Distinct()
-                          .ToList();
-
-
-                return genres;
-            });
+                return result;
+            }
 
             static async Task CreateMovie(int extID, int userID)
             {
