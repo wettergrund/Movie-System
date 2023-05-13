@@ -98,11 +98,11 @@ namespace MovieAPI
 
             });
 
-            app.MapPost("API/movie/userlink", async (UserMovie newUserMovie, int userID, int extId, int? rating) =>
+            app.MapPost("API/movie/userlink", async (int userID, int extId, int? rating) =>
             {
                 // Link a user to a movie.
                 // IF movie does not exist in DB, it will be added.
-
+                UserMovie newUserMovie = new UserMovie();
 
                 RepositoryContext context = new RepositoryContext();
                 MovieRepository movieRepo = new MovieRepository(context);
